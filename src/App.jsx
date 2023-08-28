@@ -13,20 +13,30 @@ import Loading from './components/Loading';
 import ErrorMessage from './components/ErrorMessage';
 
 import './App.css';
+import { useMovies } from './hooks/useMovies';
+import { useLocalStorageState } from './hooks/useLocalStorageState';
 
-// const average = arr => arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
-// const movies = tempMovieData;
-// const watched = tempWatchedData;
-
-const BASE_URL = `http://www.omdbapi.com/?apikey=64ddb543`;
+// moved to custom hook useMovies
+// const BASE_URL = `http://www.omdbapi.com/?apikey=64ddb543`;
 
 function App() {
   const [query, setQuery] = useState('');
-  const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
   const [selectedId, setSelectedId] = useState(null);
+
+  // moved to custom hook useMovies():
+  // const [movies, setMovies] = useState([]);
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [error, setError] = useState('');
+  const { movies, isLoading, error } = useMovies(query);
+
+  // const [watched, setWatched] = useState(tempWatchedData);
+  // const [watched, setWatched] = useState([]);
+
+  // moved to useLocalStorage hook
+  // fetching from localStorage on first render
+  // const storedValues = () => JSON.parse(localStorage.getItem('watched')) || [];
+  // const [watched, setWatched] = useState(storedValues);
+  const [watched, setWatched] = useLocalStorageState([], 'watched');
 
   const handleSelectMovie = id => {
     // setSelectedId(id);
@@ -34,12 +44,18 @@ function App() {
     setSelectedId(selectedId => (id === selectedId ? null : id));
   };
 
-  const handleCloseMovieDetails = () => {
+  // function declaration so can be hoisted and passed in the useMovies() hook
+  function handleCloseMovieDetails() {
     setSelectedId(null);
-  };
+  }
 
   const handleAddWatched = movie => {
     setWatched(watched => [...watched, movie]);
+    // localStorage option 1
+    // can't do this because 'watched' array hasn't yet been updated (stale state)
+    // localStorage.setItem('watched', watched);
+    // correct way
+    // localStorage.setItem('watched', JSON.stringify([...watched, movie]));
   };
 
   const handleDeleteWatched = id => {
@@ -47,54 +63,61 @@ function App() {
     setWatched(updatedWatchedList);
   };
 
-  useEffect(
-    function () {
-      // to clean up to prevent too many unecessary requests
-      // create an abortController (browser API), set signal to controller.signal in {options},  return controller.abort at the end and ignore the error (also setError to '')
-      const controller = new AbortController();
+  // localStorage option 2
+  // moved to useLocalStorage hook
+  // useEffect(() => {
+  //   localStorage.setItem('watched', JSON.stringify(watched));
+  // }, [watched]);
 
-      const fetchMovies = async () => {
-        try {
-          setIsLoading(true);
-          setError('');
-          const res = await fetch(`${BASE_URL}&s=${query}`, { signal: controller.signal });
-          // const res = await fetch(`${BASE_URL}/?apikey=${API_KEY}&s=${query}`);
+  // moved to custom hook useMovies
+  // useEffect(
+  //   function () {
+  //     // to clean up to prevent too many unecessary requests
+  //     // create an abortController (browser API), set signal to controller.signal in {options},  return controller.abort at the end and ignore the error (also setError to '')
+  //     const controller = new AbortController();
 
-          if (!res.ok) {
-            throw new Error('Something went wrong...');
-          } // if there was an error, ( ex failed to fetch) here the code below wouldn't get executed
-          // so isLoading would never get set back to false --> put it in finally block
+  //     const fetchMovies = async () => {
+  //       try {
+  //         setIsLoading(true);
+  //         setError('');
+  //         const res = await fetch(`${BASE_URL}&s=${query}`, { signal: controller.signal });
+  //         // const res = await fetch(`${BASE_URL}/?apikey=${API_KEY}&s=${query}`);
 
-          const data = await res.json();
-          if (data.Response === 'False') {
-            throw new Error(`${data.Error}`); // returns the API data.Error value: "Movie not found" OR:
-            // throw new Error('Customised error message that says movie not in API...');
-          }
-          setMovies(data.Search);
-          // setIsLoading(false); // in finally block
-          setError('');
-        } catch (error) {
-          if (error.name !== 'AbortError') setError(error.message);
-        } finally {
-          setIsLoading(false);
-        }
-      };
+  //         if (!res.ok) {
+  //           throw new Error('Something went wrong...');
+  //         } // if there was an error, ( ex failed to fetch) here the code below wouldn't get executed
+  //         // so isLoading would never get set back to false --> put it in finally block
 
-      if (!query.length || query.length < 3) {
-        setMovies([]);
-        setError('Start searching... (min 3 characters)');
-        return;
-      }
-      handleCloseMovieDetails();
-      fetchMovies();
+  //         const data = await res.json();
+  //         if (data.Response === 'False') {
+  //           throw new Error(`${data.Error}`); // returns the API data.Error value: "Movie not found" OR:
+  //           // throw new Error('Customised error message that says movie not in API...');
+  //         }
+  //         setMovies(data.Search);
+  //         // setIsLoading(false); // in finally block
+  //         setError('');
+  //       } catch (error) {
+  //         if (error.name !== 'AbortError') setError(error.message);
+  //       } finally {
+  //         setIsLoading(false);
+  //       }
+  //     };
 
-      // clean up
-      return function () {
-        controller.abort();
-      };
-    },
-    [query]
-  );
+  //     if (!query.length || query.length < 3) {
+  //       setMovies([]);
+  //       setError('Start searching... (min 3 characters)');
+  //       return;
+  //     }
+  //     handleCloseMovieDetails();
+  //     fetchMovies();
+
+  //     // clean up
+  //     return function () {
+  //       controller.abort();
+  //     };
+  //   },
+  //   [query]
+  // );
 
   return (
     <div className='app'>

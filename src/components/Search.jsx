@@ -1,6 +1,29 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useKey } from '../hooks/useKey';
 
 const Search = ({ query, setQuery }) => {
+  const inputEl = useRef(null);
+
+  useKey('Enter', () => {
+    if (document.activeElement === inputEl.current) return;
+    inputEl.current.focus();
+    setQuery('');
+  });
+
+  // replaced with useKey()
+  // useEffect(() => {
+  //   const callback = e => {
+  //     if (e.code === 'Enter') {
+  //       if (document.activeElement === inputEl.current) return;
+  //       inputEl.current.focus();
+  //       setQuery('');
+  //     }
+  //   };
+  //   document.addEventListener('keydown', callback);
+  //   // cleanup
+  //   return () => document.removeEventListener('keydown', callback);
+  // }, [setQuery]);
+
   return (
     <input
       className='search'
@@ -9,6 +32,7 @@ const Search = ({ query, setQuery }) => {
       value={query}
       onChange={e => setQuery(e.target.value)}
       autoFocus
+      ref={inputEl}
     />
   );
 };

@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import Loading from './Loading';
 import ReusableStarRating from './ReusableStarRating';
+import { useKey } from '../hooks/useKey';
 
 const BASE_URL = `http://www.omdbapi.com/?apikey=64ddb543`;
 
@@ -9,6 +10,12 @@ const MovieDetails = ({ selectedId, onCloseDetails, onAddWatched, watched }) => 
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [userRating, setUserRating] = useState('');
+
+  const countRef = useRef(0);
+
+  useEffect(() => {
+    if (userRating) countRef.current += 1;
+  }, [userRating]);
 
   // we only want to add a movie to the WatchedMoviesList once
   // derived state to check if movie is already in WatchedMoviesList: transform watched array of objects into array of ids so we can check movie id against ids already there:
@@ -44,6 +51,7 @@ const MovieDetails = ({ selectedId, onCloseDetails, onAddWatched, watched }) => 
       imdbRating: Number(imdbRating),
       runtime: Number(runtime.split(' ').at(0)),
       userRating,
+      countRatingDecisions: countRef.current,
     };
     onAddWatched(newWatchedMovie);
     onCloseDetails();
@@ -52,18 +60,21 @@ const MovieDetails = ({ selectedId, onCloseDetails, onAddWatched, watched }) => 
 
   // adding a keydown event to close the moviesDetails screen instead of clicking back btn
   // --> an event listener will be added/attached to the document EACH TIME a movieDetails component is rendered. They will keep accumulating without a CLEAN UP
-  useEffect(() => {
-    const callback = e => {
-      if (e.code === 'Escape') {
-        onCloseDetails();
-      }
-    };
-    document.addEventListener('keydown', callback);
-    // clean up
-    return function () {
-      document.removeEventListener('keydown', callback);
-    };
-  }, [onCloseDetails]);
+  useKey('Escape', onCloseDetails);
+
+  // moved to useKey()
+  // useEffect(() => {
+  //   const callback = e => {
+  //     if (e.code === 'Escape') {
+  //       onCloseDetails();
+  //     }
+  //   };
+  //   document.addEventListener('keydown', callback);
+  //   // clean up
+  //   return function () {
+  //     document.removeEventListener('keydown', callback);
+  //   };
+  // }, [onCloseDetails]);
 
   useEffect(() => {
     const fetchMovieDetails = async () => {

@@ -4,9 +4,14 @@ import Loading from './Loading';
 import ReusableStarRating from './ReusableStarRating';
 import { useKey } from '../hooks/useKey';
 
-const BASE_URL = `http://www.omdbapi.com/?apikey=64ddb543`;
+const BASE_URL = `https://www.omdbapi.com/?apikey=64ddb543`;
 
-const MovieDetails = ({ selectedId, onCloseDetails, onAddWatched, watched }) => {
+const MovieDetails = ({
+  selectedId,
+  onCloseDetails,
+  onAddWatched,
+  watched,
+}) => {
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [userRating, setUserRating] = useState('');
@@ -19,12 +24,16 @@ const MovieDetails = ({ selectedId, onCloseDetails, onAddWatched, watched }) => 
 
   // we only want to add a movie to the WatchedMoviesList once
   // derived state to check if movie is already in WatchedMoviesList: transform watched array of objects into array of ids so we can check movie id against ids already there:
-  const alreadyWatched = watched.map(watchedIds => watchedIds.imdbID).includes(movie.imdbID);
+  const alreadyWatched = watched
+    .map((watchedIds) => watchedIds.imdbID)
+    .includes(movie.imdbID);
   // const alreadyWatched = watched.map(watchedIds => watchedIds.imdbID).includes(selectedId);
   // console.log('alreadyWatched ', alreadyWatched); // true or false
 
   // get the userRating value : find the movie in the array that matches selectedId, take the userRating prop only if this array is not empty (undefined) (with ?optional chaining)
-  const watchedUserRating = watched.find(movie => movie.imdbID === selectedId)?.userRating;
+  const watchedUserRating = watched.find(
+    (movie) => movie.imdbID === selectedId
+  )?.userRating;
   // console.log('watchedUserRating', watchedUserRating);
 
   // destructuring to rename props from API
@@ -101,15 +110,10 @@ const MovieDetails = ({ selectedId, onCloseDetails, onAddWatched, watched }) => 
       ) : (
         <>
           <header>
-            <button
-              className='btnBack'
-              onClick={onCloseDetails}>
+            <button className='btnBack' onClick={onCloseDetails}>
               &larr;
             </button>
-            <img
-              src={poster}
-              alt={`${title} poster`}
-            />
+            <img src={poster} alt={`${title} poster`} />
             <div className='detailsOverview'>
               <h2>{title}</h2>
               <p>
@@ -134,9 +138,7 @@ const MovieDetails = ({ selectedId, onCloseDetails, onAddWatched, watched }) => 
                     onSetRating={setUserRating}
                   />
                   {userRating > 0 ? (
-                    <button
-                      className='btn-add'
-                      onClick={handleAdd}>
+                    <button className='btn-add' onClick={handleAdd}>
                       Add to List
                     </button>
                   ) : (
@@ -145,7 +147,9 @@ const MovieDetails = ({ selectedId, onCloseDetails, onAddWatched, watched }) => 
                 </>
               ) : (
                 <p>
-                  You rated this movie: <span className='userRating'>⭐️ {watchedUserRating} </span>/ 10
+                  You rated this movie:{' '}
+                  <span className='userRating'>⭐️ {watchedUserRating} </span>/
+                  10
                 </p>
               )}
             </div>

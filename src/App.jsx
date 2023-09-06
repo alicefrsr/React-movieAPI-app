@@ -125,6 +125,7 @@ function App() {
         <Search
           query={query}
           setQuery={setQuery}
+          onCloseDetails={handleCloseMovieDetails}
         />
         <NumResults movies={movies} />
       </Navbar>

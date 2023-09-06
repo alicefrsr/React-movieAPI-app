@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useKey } from '../hooks/useKey';
 
-const Search = ({ query, setQuery }) => {
+const Search = ({ query, setQuery, onCloseDetails }) => {
   const inputEl = useRef(null);
 
   useKey('Enter', () => {
     if (document.activeElement === inputEl.current) return;
     inputEl.current.focus();
+    onCloseDetails();
     setQuery('');
   });
 

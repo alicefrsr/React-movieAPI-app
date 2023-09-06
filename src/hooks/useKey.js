@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
+// (used in MovieDetails)
 
 export function useKey(key, action) {
   useEffect(() => {
-    const callback = e => {
+    const callback = (e) => {
       if (e.code.toLowerCase() === key.toLowerCase()) {
         action();
       }

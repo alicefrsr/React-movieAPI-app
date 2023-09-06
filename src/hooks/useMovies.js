@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
-const BASE_URL = `http://www.omdbapi.com/?apikey=64ddb543`;
+const BASE_URL = `https://www.omdbapi.com/?apikey=64ddb543`;
 
-export const useMovies = query => {
+export const useMovies = (query) => {
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -19,7 +19,9 @@ export const useMovies = query => {
       try {
         setIsLoading(true);
         setError('');
-        const res = await fetch(`${BASE_URL}&s=${query}`, { signal: controller.signal });
+        const res = await fetch(`${BASE_URL}&s=${query}`, {
+          signal: controller.signal,
+        });
 
         if (!res.ok) {
           throw new Error('Something went wrong...');

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 const BASE_URL = `http://www.omdbapi.com/?apikey=64ddb543`;
 
-export const useFetch = query => {
+export const useFetch = (query) => {
   const [thingsToFetch, setThingsToFetch] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -13,7 +13,9 @@ export const useFetch = query => {
       try {
         setIsLoading(true);
         setError('');
-        const res = await fetch(`${BASE_URL}&s=${query}`, { signal: controller.signal });
+        const res = await fetch(`${BASE_URL}&s=${query}`, {
+          signal: controller.signal,
+        });
 
         if (!res.ok) {
           throw new Error('Something went wrong...');

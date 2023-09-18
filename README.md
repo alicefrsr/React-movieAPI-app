@@ -7,7 +7,7 @@ re-usable components.
 
 ### Functionalities:
 
-- search for movies by title
+- search the OMDb API for movies by title
 - view movie information
 - rate movie, add it to a watchlist
 - delete it from watchlist
